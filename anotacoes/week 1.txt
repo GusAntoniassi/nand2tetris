@@ -1,0 +1,155 @@
+Lógica booleana
+	Valores booleanos - 1 0, V F, S N
+	Tabela verdade
+		Dá todas as possibilidades para os valores
+	Funções booleanas
+		Funções que recebem variáveis e produzem um valor
+		f(x,y,z) = (x AND y) OR (NOT(x) AND z)
+		Como os valores booleanos são finitos, eles podem ser representados através da tabela verdade
+		Regras Comutativas
+			x AND y = y AND x
+			x OR y = y OR x 
+		Regras Associativas
+			x AND (y AND z) = (x AND y) AND z
+			x OR (y OR z) = (x OR y) OR z
+		Regras Distributivas (chuveirinho)
+			x AND (y OR z) = (x AND y) OR (x AND z)
+			x OR (y AND z) = (x OR y) AND (x OR z)
+		Regra da Idempotência
+			x AND x = x
+			x OR x = x
+		Regra da negação dupla
+			NOT(NOT(x)) = x
+		Regras De Morgan
+			NOT (x AND y) = NOT(x) OR NOT(y)
+			NOT (x OR y) = NOT(x) AND NOT(y)
+
+Síntese de Funções Booleanas (Converter tabela verdade em função)
+	Construir uma Forma Normal Disjuntiva (FND / DNF)
+	Problema NP-Hard, algorítmo pra achar a expres~sao booleana mais curta
+	- Pegar apenas as linhas que tem valor final de 1
+	- Escrever uma expressão que tira um valor 1 daquela linha
+		0 0 0 -> NOT(x) AND NOT(y) AND NOT(z)
+		0 1 0 -> NOT(x) AND y AND NOT(z)
+	- Juntar as funções com OR
+	- Simplificar
+		(NOT(x) AND NOT(y) AND NOT(z)) OR (NOT(x) AND y AND NOT(z)) OR (x AND NOT(y) AND NOT(z)
+		É possível combinar as duas primeiras cláusulas, ignorar o y (que de um lado está NOT(y) e do outro está y)
+		(NOT(x) AND NOT(z)) OR (x AND NOT(y) AND NOT(z))
+	NAND:
+		Zero apenas se os 2 operadores forem 1
+	Conclusão: 
+		- Qualquer função pode ser representada com AND, OR e NOT
+		+ Leis DeMorgan
+		- Qualquer função pode ser representada com AND e NOT
+			(x OR y) = NOT(NOT(x OR y)) = NOT(NOT(x) AND NOT(y)
+		+ NAND
+		- Qualquer função pode ser representada com NAND
+			- NOT(x) = x NAND x
+			- (x AND y) = NOT(x NAND x)
+
+Portas Lógica
+	Lógica de portas: técnica para implementar funções booleanas usando portões lógicos
+	- Porta lógica
+		- Elementar: projetado para fornecer uma determinada funcionalidade (NAND, AND, OR, etc)
+		- Composto: formado de uma porta lógica elementar e outras portas elementares - é uma porta mais complexa (MUX, Adder)
+	- Interface da porta: abstração, o que o usuário vê ao usar
+	- Implementação da porta: visão mais profunda, como o chip é construído
+	- Uma única interface, várias implementações
+	- Implementações do circuito: padrão é colocar o desenho de uma lâmpada como OUT
+	
+Hardware Description Language (HDL)
+	- Design de chips começa com a documentação -- tabela verdade
+	Sintaxe:
+	CHIP Xor {
+		IN a,b;
+		OUT out;
+		
+		PARTS:
+		Not (in=a, out=nota);
+		Not (in=b, out=notb);
+		And (a=a, b=notb, out=aAndNotb);
+		And (a=nota, b=b, out=notaAndB);
+		Or (a=aAndNotb, b=notaAndb, out=out);
+	}
+	Convenção:
+		- a,b,out para chips com duas entradas
+		- in,out para chips com uma entrada
+	- HDLs comuns
+		- VHDL, Verilog
+	- HDL do curso: simples e mínima, similar em espírito às outras HDLs
+
+Hardware Simulation
+	Hardware Construction Projects
+	- System architects: Pessoa que recebe a ordem: "Construa um computador", "Construa a câmera"
+		- Olha pra arquitetura geral e quebra em chips necessários
+		- Cria a API, script de teste e o arquivo de comparação
+	- Developers:
+		- Constroem o chip em si, usando a documentação do arquiteto
+
+Multi-bit buses
+	- Manipular uma série de bits em conjunto
+	- Conjunto de bits agrupados = bus
+		- Latim para "muitos" ou "múltiplos"
+	- HDL possui sintaxe especial:
+		- IN a[16], b[16];
+		- OUT out[16];
+		- Acessar o bus pegando um bit específico
+			AND(a=a[0], b=a[1], out=t01);
+	- Exemplo:
+		- Adicionar dois números binários (16 bits)
+	- Sub-buses
+		- Composição/divisão de um bus em um sub-bus
+		- Add16(a[0..7]=lsb, a[8..15]=msb...
+		- Overlap permitivo para output
+		- Largura dos pinos internos é deduzida automaticamente
+		- "false" e "true" podem ser usados em buses 
+		
+Project 1 Overview
+	Usando NAND, construir os gates
+		Lógica elementar
+			Not, and, or, xor, mux, dmux
+		16-bit variants
+			not16, and16, or16, mux16, dmux16, 
+		multi-way variants
+			or8way mux4way16, mux4way16, dmux4way, dmux8way
+	Mais comuns e elementares para construir o computador
+	
+	Mux - Multiplexor
+		Gate que opera com 2 inputs vindo (a, b) e um input vindo de baixo (sel)
+		if (sel==0) out=a else out=b
+		2-way multiplexor permite selecoinar e sair um dos dois inputs possíveis
+		Muito usado em: design digital, redes de comunicação
+	DMux - Demultiplexor
+		Opera com 1 input vindo (in) e um input vindo de baixo (sel), com 2 outputs de saída
+		if (sel == 0)
+			a = in
+			b = 0
+		else
+			a = 0
+			b = in
+		Inverso de um multiplexor
+	Uso do mux/dmux em redes de comunicação
+		Podem existir vários canais de comunicação de entrada (música, streaming, etc) que deve passar por uma única linha
+		de comunicação (satélite, etc.)
+		Utiliza-se um Mux na entrada para alternar entre os valores
+		O bit sel pode ser conectado a um oscilador que varia entre 0 e 1
+		Na saída da linha utiliza-se um DMux com o mesmo esquema, para converter de volta a única linha em mais de um canal
+		Permite enviar várias mensagens em uma única linha de comunicação
+		
+	Gate programável
+		Gate que pode se comportar em diversas formas de acordo com a nossa necessidade
+		AndMuxOr
+			if (sel == 0) out = (a AND b) else (a OR b)
+	
+	And16
+		AND com 2 buses de 16 bits de entrada e 1 bus de 16 bits de saída
+		a = 1 0 1 0 1 0 1 1 0 1 0 1 1 1 0 0
+		b = 0 0 1 0 1 1 0 1 0 0 1 0 1 0 1 0
+		-----------------------------------
+		o = 0 0 1 0 1 0 0 1 0 0 0 0 1 0 0 0
+	
+	Mux4Way16
+		Multiplexor com 4 inputs e 16 bits buses, 2-bit selection para escolher entre os 4 buses
+		
+		

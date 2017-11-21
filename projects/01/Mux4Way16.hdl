@@ -1,0 +1,44 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux4Way16.hdl
+
+/**
+ * 4-way 16-bit multiplexor:
+ * out = a if sel == 00
+ *       b if sel == 01
+ *       c if sel == 10
+ *       d if sel == 11
+ */
+
+CHIP Mux4Way16 {
+    IN a[16], b[16], c[16], d[16], sel[2];
+    OUT out[16];
+
+    PARTS:
+    /* 
+        Se sel[0] (bit da direita) for 0, vai selecionar a OU c,
+    logo não podemos usar o bit para selecionar um dos dois, pois o mesmo
+    valor do bit será usado pra selecionar ambos
+        Se sel[0] (bit da direita) for 1, vai selecionar b OU d, mesma coisa acima
+        Portanto, o primeiro MUX tem que ser (a^b) v (a^d) v (c^b) v (c^d)
+        
+        Se sel[1] for 0, vai selecionar a OU b
+        Se sel[1] for 1, vai selecionar c OU d
+        Portanto, o segundo MUX tem que ser (a^c) v (a^d) v (b^c) v (b^d)
+        
+        a^b não pode ser, pois todos os MUX usam a e b
+        c^b também não pode ser, pois todos os MUX usam c e d
+        Teria que ser (a^d', b^c'') ou (c^b', a^d''), o que são equivalentes
+
+        mux1: a^d
+        mux2: b^c
+
+        O terceiro mux tanto faz qualquer um dos bits que usar pro select, ambos vai dar igual
+    */
+
+    /* Se sel[1] (bit da esquerda) for 0, vai selecionar a OU b
+    Mux16(a=a, b=d, sel=sel[0], out=muxaAndD);
+    Mux16(a=b, b=c, sel=sel[1], out=muxbAndC);
+    Mux16(a=muxaAndD, b=muxbAndC, sel=sel[0], out=out);
+}
