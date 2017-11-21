@@ -1,0 +1,6 @@
+Números binários
+	789 = 7x10² + 8x10¹ + 9x10^0
+	Em binário os números serão potências de 2
+	101 = 1x2² + 0x2¹ + 1x2^0 = 4 + 0 + 1 = 5
+	Maior número com n bits é (2^n)-1
+	1101 = 1x2³ + 1x2² + 0x2 + 1 = 8 + 4 + 1 = 13
