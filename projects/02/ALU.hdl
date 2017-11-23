@@ -48,28 +48,30 @@ CHIP ALU {
     Mux16(a=y, b=false, sel=zy, out=zyDone);
 
     // Resolver o nx e ny
-    Not16(in=x, out=notx);
-    Not16(in=y, out=noty);
-    Mux16(a=x, b=notx, sel=nx, out=nxDone);
-    Mux16(a=y, b=noty, sel=ny, out=nyDone);
+    Not16(in=zxDone, out=notx);
+    Not16(in=zyDone, out=noty);
+    Mux16(a=zxDone, b=notx, sel=nx, out=nxDone);
+    Mux16(a=zyDone, b=noty, sel=ny, out=nyDone);
 
     // Fazer a soma do X e Y
-    Add16(a=nxDone, b=nyDone, out=xAndY);
+    Add16(a=nxDone, b=nyDone, out=xAddY);
 
     // Fazer o AND do X e Y
-    And16(a=nxDone, b=nyDone, out=xPlusY);
+    And16(a=nxDone, b=nyDone, out=xAndY);
 
     // Resolver o f
-    Mux16(a=xPlusY, b=xAndY, sel=f, out=fDone);
+    Mux16(a=xAndY, b=xAddY, sel=f, out=fDone);
 
     // Resolver o no
-    Not(in=fDone, out=notfDone);
-    Mux16(a=fDone, b=notFDone, sel=no, out=out);
-    
+    Not16(in=fDone, out=notfDone);
+    Mux16(a=fDone, b=notfDone, sel=no, out[0..7]=noDone8bit1, out[8..15]=noDone8Bit2, out[15]=outMSB, out=out);
+
     // Resolver o zr
-    Mux(a=true, b=false, sel=out); // Será que funciona? 
-    // Acho que tem que dar um jeito de dar OR em todos os bits pra ver se é 0
+    Or8Way(in=noDone8bit1, out=orOut1);
+    Or8Way(in=noDone8bit1, out=orOut2);
+    Or(a=orOut1, b=orOut2, out=orOutFinal);
+    Not(in=orOutFinal, out=zr);
 
     // Resolver o ng
-    Mux(a=true, b=false, sel=out[15]); // Pega o dígito mais significativo para representar o sinal
+    Mux(a=false, b=true, sel=outMSB, out=ng); // Pega o dígito mais significativo para representar o sinal
 }
