@@ -4,3 +4,185 @@ Números binários
 	101 = 1x2² + 0x2¹ + 1x2^0 = 4 + 0 + 1 = 5
 	Maior número com n bits é (2^n)-1
 	1101 = 1x2³ + 1x2² + 0x2 + 1 = 8 + 4 + 1 = 13
+	
+	Em computadores o tamanho da palavra é fixo
+	tamanho da palavra = número de bits que um número tem
+	
+	8 bits = 0000 0000 a 1111 1111 sem sinal
+	Representar números negativos: primeiro bit fica como sinal
+	0000 0000 = 0 | 1111 1111 = -128
+	
+	Converter número decimal em binário:
+		- Determinar qual é o maior número elevado ao quadrado que é menor que o número desejado
+		87 = 64
+		- A partir do maior número, determinar se podemos adicionar o próximo maior número elevado ao quadrado e continuar menor que o número desejado
+		87 = 64 + 0 + 16 (32 passa)
+		- Repetir o processo até chegar em 1
+		87 = 64 + 0 + 16 + 0 (8 passa) + 4 + 2 + 1
+		- Converter os números em exponentes elevados a 2
+		87 = 1*2^6 + 0*2^5 + 1*2^4 + 0*2^3 + 1*2^2 + 1*2^1 + 1*2^0
+		- OU: Substituir os números > 0 por 1
+		87 = 0 1 0 1  0 1 1 1
+		
+		99 = 64 (128 passa)
+		99 = 64 + 32 + 0 + 0 + 0 + 2 + 1
+		99 = 0110 0011
+
+Manipulando números binários
+	Operações: Adição, subtração, comparação (maior e menor), multiplicação, divisão
+	- É necessário implementar apenas a adição, o resto dá pra construir a partir dela
+	- No hardware só é necessário implementar a adição. Entendendo a subtração a comparação vem junto
+		- Divisão e multiplicação dá pra deixar pro software
+	- ADIÇÃO
+	
+		1 1
+		5 7 8 3   Soma os dois números
+	   +2 4 5 6   
+		-------   
+		8 2 3 9   Se for maior que zero, a unidade fica em baixo e a dezena vai pra cima
+		
+		- Em binário
+		
+			1 1 1
+		0 0 0 1 0 1 0 1
+		0 1 0 1 1 1 0 0
+		---------------
+		0 1 1 1 0 1 0 1		Se for maior que zero, (10) a unidade fica em baixo e a "dezena" vai pra cima
+		11111
+		01111101
+		00110110
+		--------
+		10110011
+	- Construindo um adicionador
+		- Half adder: adiciona 2 bits
+			- Olhando na operação da adição, é possível usar apenas os dois bits
+				- Desde que não ocorra vai-um, a operação vai dar certo
+			- Operação com duas entradas (a,b) e duas saídas (soma, vai-um)
+				- Operação abstraída pelo chip
+				a  b  |  soma  vai-um
+				0  0  |    0     0
+				0  1  |    1     0
+				1  0  |    1     0
+				1  1  |    0     1
+		- Full adder: adiciona 3 bits
+			- Quando há o bit de vai-um, teremos três entradas (a, b, c) e duas saídas,
+				a  b  c  |  soma  vai-um
+				0  0  0  |    0     0
+				0  0  1  |    1     0
+				0  1  0  |    1     0
+				0  1  1  |    0     1
+				1  0  0  |    1     0
+				1  0  1  |    0     1
+				1  1  0  |    0     1
+				1  1  1  |    1     1
+		- Adder: adiciona dois números
+			- Adicionar os dois primeiros bits usa apenas um half-adder, pois não há carry por enquanto
+			- A partir daí é a adição dos outros bits com o amarelo
+			- 16-bit adder: (a[16], b[16]), out[16]
+				- 16 adders
+				
+Números negativos
+	Forma mais simples: Pegar o primeiro bit e usar como bit de sinal
+		1 010 -> -2
+		Não é elegante: -0 não existe
+	Sistema chamado complemento de 2
+		Representa o número negativo x usando o número positivo 2^n-x
+		Em um sistema de 4 bits - 2^n = 16
+		-3 = 16 - 3 = 13
+		3 = 0010, -3 = 1101
+		Subtração/Adição mais fácil
+		Ganhamos um número negativo
+			Números positivos na faixa de: 0...(2^(n-1))-1
+			Números negativos na faixa de: -1..(-2^(n-1))
+		Como funciona a subtração
+			-2 +			14 +	==> Complemento de 2: 16 - 2 = 14
+			-3		<=>		13		==> Complemento de 2: 16 - 3 = 13
+			--				--
+			11				27 (descarta o bit mais significativo)
+			
+			1				
+			1110 +
+			1101
+			----
+			11011 => 11
+			11 em complemento de 2 é -5
+			16 - 11 = -5
+	Para fazer a subtração, será necessário computar -x
+		Pegar um input -x, soltar o output -x
+		Truque matemático - 2^n é 2^n-1+1
+		-x = 2^n-x => 1+(2^n-1)-x
+		(2^n-1) = 1111 1111
+		Qualquer negação é simplesmente um NOT de todos os bits + 1
+			1111 1111+
+			1010 1100
+			---------
+			0101 0011+
+			        1
+			---------
+			0101 0100
+		Truque para adicionar 1
+			Seguir virando os bits da direita para a esquerda, parando na primeira vez que um 0 virar 1
+			0101 0011+1
+			---------
+			      100 -> parou aqui, o resto continua igual
+				  
+			
+			0110 => NOT => 1001 + 1 => 1010
+
+Arithmetic Logic Unit (ALU)
+	Arquitetura Von Neumann
+		Entrada -> Memória -> CPU (ALU) -> Saída
+		Abstração:
+			Placa que recebe 2 inputs (números), 1 input (função) e tem uma saída (f(input1, input2))
+		Funções:
+			Adição, multiplicação, divisão, bitwise AND, OR, XOR, etc.
+	Hack ALU
+		2 entradas 16-bit (x,y)
+		1 saída (out)
+		6 inputs de 1 bit
+			Decidem qual função será feita
+			0, 1, -1, x, y, !x, !y, -x, -y, x+1, y+1, x-1, y-1, x+y, x-y, y-x, x&y x|y
+			zx: zera o x, se for 1, x=0
+			nx: nega o x, se for 1, x=!x
+			zy: mesma coisa que o zx
+			ny: mesma coisa que o nx
+			f: seleciona a função 
+				- se f=1, saída será x+y
+				- se f=0, saída será x&y
+			no: nega o output, se 1 out=!out
+			
+		2 bits de controle na saída
+			Dizer algo sobre a saída
+			zr: se o output é 0
+			ng: se o output é negativo
+		Controle será baseado em uma tabela verdade
+		
+Projeto 2
+	Construir os chips
+		HalfAdder
+			Recebe dois bits, adiciona os dois e retorna a soma e o vai-um
+			Coluna da soma e carry são idênticos aos gates Xor e And
+		FullAdder
+			Adiciona 3 bits de entrada
+			Geralmente é possível construir com dois half-adders e alguns outros gates
+		Add16
+			Dá pra fazer usando 16 full adders
+			O carry é "piped" da direita pra esquerda
+			O carry do dígito mais significante é ignorado
+		Inc16
+			Recebe um único input e incrementa por 1
+			Em HDL pode ser usado true e false pra representar 0 e 1
+		ALU
+			Pode ser construído em menos de 20 linhas de código HDL
+			Usa add16 e vários chips do projeto 1
+		
+		É recomendado usar os chips BUILTIN da HDL
+		
+Perspective
+	Carry lookahead: Computar o carry independente do resultado da soma
+		Jeito atual é ineficiente, o sinal tem que passar por vários gates até chegar no final
+		
+		
+		
+	zerar um número
+	
