@@ -42,5 +42,34 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+
+    // Resolver o zx e zy
+    Mux16(a=x, b=false, sel=zx, out=zxDone);
+    Mux16(a=y, b=false, sel=zy, out=zyDone);
+
+    // Resolver o nx e ny
+    Not16(in=x, out=notx);
+    Not16(in=y, out=noty);
+    Mux16(a=x, b=notx, sel=nx, out=nxDone);
+    Mux16(a=y, b=noty, sel=ny, out=nyDone);
+
+    // Fazer a soma do X e Y
+    Add16(a=nxDone, b=nyDone, out=xAndY);
+
+    // Fazer o AND do X e Y
+    And16(a=nxDone, b=nyDone, out=xPlusY);
+
+    // Resolver o f
+    Mux16(a=xPlusY, b=xAndY, sel=f, out=fDone);
+
+    // Resolver o no
+    Not(in=fDone, out=notfDone);
+    Mux16(a=fDone, b=notFDone, sel=no, out=out);
+    
+    // Resolver o zr
+    Mux(a=true, b=false, sel=out); // Será que funciona? 
+    // Acho que tem que dar um jeito de dar OR em todos os bits pra ver se é 0
+
+    // Resolver o ng
+    Mux(a=true, b=false, sel=out[15]); // Pega o dígito mais significativo para representar o sinal
 }
