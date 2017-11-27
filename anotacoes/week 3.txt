@@ -1,0 +1,135 @@
+Lógica sequencial
+	Usar o mesmo hardware várias vezes em diferentes tempos
+	Armazenar o "estado"
+		Memórias e contadores
+	Clock
+		Sequência de 0s e 1s que acontece de forma fixa em um determinado período
+		Oscilador
+		Unidades de tempo são imutáveis, nada muda enquanto não for pro próximo clock
+			Input é adicionado apenas dentro daquela unidade, e o output é calculado instantaneamente
+		Abstração do sinal físico
+			Sinais físicos possuem um delay pra chegar em determinado estado 
+		Ciclo do clock é escolhido com base no tempo que os sinais levam pra se estabilizar
+	Lógica combinatória
+		saída[t] = função(entrada[t])
+		Saída atual não tem conhecimento da saída anterior
+		
+	Lógica sequencial
+		saída[t] = função(entrada[t-1])
+		Saída depende da entrada anterior
+		Conceito de estado
+		t1 |   t2   |   t3   |   t4  
+		a  | b=f(a) | c=f(b) | d=f(c)
+
+Flip flops
+	Lembrar 1 bit de informação do tempo t-1 pra ser usado no tempo t
+		No ~final~ do tempo t-1, ele pode estar lembrando 0 ou 1
+		Fazer "Flip" entre os dois estados possívels (lembrando 0 ou lembrando 1)
+		Denominados flip flops
+			Flip pra 0 e flop pra 1
+	- Clocked data flip flop (DFF)
+		- Permite um a entrada em t-1, e lembra aquela entrada em t
+		- Tem t0, não é possível determinar qual estado o flip flop está
+		- Triângulo pequeno no diagrama = Chip depende do tempo (sequencial)
+			- Vai precisar ter acesso aos clocks
+	- No curso será um primitivo
+		- Dá pra construir usando NAND
+		- Criar um 'loop' criando um flip-flip sem clock
+		- Isolar o tempo usando um setup 'master/slave'
+	- Array de DFF (compõem a memória do sistema)
+		- state[t] = f(input, state[t-1])
+	- Registrador de 1 bit
+		- Lembra de um bit 'pra sempre', até ser sobrescrito
+		- in, load, out
+			- if load(t-1) then out(t)=in(t-1) else out(t) = out(t-1)
+			
+		in					out
+		--•-->| DFF |---•---->
+		  ^				|
+		  +-------------+
+		Vai lembrar apenas o valor do in
+		
+		in					out
+		--•-->| DFF |---•---->
+		  ^	 out   a	|
+		  +---<-MUX-<---+
+				 +---------- b (in) 
+				sel (load)
+
+Unidades de memória
+	Em unidades de hardware existem várias memórias
+	Memória primária: RAM
+	Memória secundária: discos
+	
+	Memória volátil: apaga os dados quando fica sem energia
+	RAM
+		Armazena os dados e as instruções
+	Elemento mais básico: Registrador
+		É possível colocar vários registradores um do lado do outro pra fazer um registrador multi-bit 
+		w: tamanho da palavra (16 bit, 32 bit, etc)
+		Estado do registrador: que valor está armazenado dentro do registrador
+		Lógica de leitura: ler o out (sempre será o valor que queremos armazenar)
+		Lógica de gravação: set in = valor, set load = 1
+			
+	Arquitetura geral da RAM:
+		Sequência de registradores endereçáveis, com endereços de 0 a n-1
+		Mesmo se tiver milhões de registradores na RAM, apenas um registrador será selecionado
+		Devemos sempre especificar qual registrador vamos acessar para ler/escrever
+		in (w), address (k), load, out (w)
+		w: tamanho da palavra
+		k: largura da palavra do endereço = log2(n)
+		Chip sequencial, depende do clock
+		
+	Chips a serem construídos
+		Todos tem a mesma arquitetura
+		nome	|   n   |  k (bits)
+		RAM8    | 8     |  3
+		RAM64   | 64    |  6
+		RAM512  | 512   |  9
+		RAM4K   | 4096  |  12
+		RAM16K  | 16384 |  14
+		
+	RAM - Random Access Memory
+		Independente do número de registradores, é possível selecionar qualquer valor ao mesmo tempo
+			- Ignora todos os outros
+			
+Contadores
+	Emite um número que indica qual instrução deve ser executada
+	Possível mudar o número do counter
+	- Computador deve registrar qual a próxima instrução a executar
+	- Controle realizado por um Program Counter (PC)
+	Instruções possíveis:
+		Reset: pega a primeira instrução - PC = 0
+		Next: pega a próxima instrução - PC++
+		Goto: pega a instrução N - PC = N
+	- Chip:
+		In(16), load, inc, reset, out(16)
+		- Se reset = 1, counter emitirá 0
+		- (senão) Se load = 1, counter emitirá o valor especificado no in, out emitirá o valor que está armazenado no 
+		registrador no endereço in
+		- (senão) Se inc = 1, counter será incrementado
+
+Projeto 3
+	DFF - Data flip flop
+	Construir:
+		Bit - Registrador de 1 bit
+			- DFF e um MUX
+		Register
+			- Múltiplos 1-bit registers
+		RAM8
+			- IN value será alimentado em todos os registradores, simultaneamente
+			- Mux/DMux para selecionar o registrador certo
+		RAM64
+			- 8 RAM8s
+			- Valor do endereço será consistido de dois campos: um para selecionar qual das RAMs internas
+				- O outro para selecionar qual dos registradores dessa RAM será usado
+		RAM512
+			- 8 RAM64s
+		RAM4K
+			- Assim por diante
+		RAM16K
+		PC
+			- Dá pra fazer usando um registrador, um incrementador e alguns portões lógicos
+	Excluindo o PC, são todos sequencialmente mais complicados (um constrói no topo do outro)
+	Arquivos HDL estão armazenados em duas pastas A e B
+		- Motivos de performance
