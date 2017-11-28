@@ -16,5 +16,18 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    /* Se (reset || load || inc), teremos que alterar o valor do registrador */
+    Or(a=load, b=reset, out=loadOrReset);
+    Or(a=loadOrReset, b=inc, out=loadOrResetOrInc);
+    
+    /* Pegar o valor incrementado do registrador */
+    Inc16(in=registerValue, out=incValue);
+
+    /* Selecionar entre o valor incrementado, o valor de entrada ou 0 dependendo do inc, load e reset */
+    Mux16(a=registerValue, b=incValue, sel=inc, out=incrementedOutput);
+    Mux16(a=incrementedOutput, b=in, sel=load, out=loadedOutput);
+    Mux16(a=loadedOutput, b=false, sel=reset, out=resetOutput);
+    
+    /* Dar a saída e armazenar os valores se for o caso */
+    Register(in=resetOutput, load=loadOrResetOrInc, out=registerValue, out=out);
 }
