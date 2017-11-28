@@ -1,0 +1,34 @@
+Linguagens de Máquina: Visão geral
+	Modelos teóricos de Alan Turing
+		- Formalizou a noção de um computador
+		- Define um modelo teórico - Máquina de Turing
+		- Tenta capturar a essência do que pode ser computado
+		- Universal Turing Machine: Máquina que consegue agir como qualquer máquina
+	Modelo Von Neumann
+		- Prática
+		- Montou a primeira arquitetura de uma máquina de computação geral
+		- Software dentro do hardware
+		- Softwares diferentes agem de forma diferente
+		- Input -> Memória (Programa / Dados) <-> CPU -> Saída
+		- Software muda, computador faz coisas diferentes
+	Programa
+		Sequência de instruções, codificadas em binário
+		Processador roda instrução por instrução, executando-as
+	
+	Como especificar as instruções?
+		- O que uma instrução diz ao computador pra fazer?
+	Como saber qual instrução realizar em um determinado momento? Deve ser possível ir de uma instrução à outra
+	Como dizer ao software onde estão os valores a serem computados e onde armazenar o resultado
+	Facilitar a programação em linguagem de máquina
+		- Instruções são sempre sequências de bits => Converter em palavras
+		- 0100010 0011 0010
+		-   ADD    R3   R2
+		- Interpretação 1: Forma sintática não existe, é apenas um "apelido" para as instruções
+		- Interpretação 2: Humanos vão poder escrever instruções em linguagem de máquina, e terão um "Assembler"
+		para convertê-las em forma binária
+		Símbolos
+			- Acessar posições de memória
+			- ADD 1, Mem[129]
+			- Assembler vai traduzir as variáveis: index -> Mem[129]
+			- Nome de variáveis
+			- Assembler que vai alocar a posição
