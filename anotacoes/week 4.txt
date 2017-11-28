@@ -32,3 +32,86 @@ Linguagens de Máquina: Visão geral
 			- Assembler vai traduzir as variáveis: index -> Mem[129]
 			- Nome de variáveis
 			- Assembler que vai alocar a posição
+	
+Linguagens de Máquina: Elementos
+	Interface entre hardware e software
+	Especificar quais operações o hardware vai fazer, de onde vai tirar a memória e tal
+	Geralmente quase correspondente À arquitetura do hardware (mas não necessariamente)
+	Troca entre custo e performance (custo do silicone vs tempo p/ completar instrução)
+	Operações de máquina:
+		- Aritméticas
+		- Lógicas
+		- Controle de fluxo (goto, if)
+	Algumas operações podem ser retiradas (divisão, etc)
+		- Tipos de dados também (8-bit vs 64-bit, decimais)
+	Endereços de memória
+		- Acessar memória é 'caro' (enderçeos longos, transferência à CPU)
+		- Hierarquia de memória (Vonn Neuman)
+			- CPU -> Registradores -> Cache -> Memória principal -> disco
+	Registradores
+		- Linguiagem de máquina
+		- Poucos bits, muito rápidos
+		- Registradores de dados
+			Add r1, r2
+		- Armazenar endereços de memória
+			Store R1, @A
+	Formas de endereçamento
+		- Registradores: Add r1, r2 -- R2 = R2 + R1
+		- Direto: Add r1, M[200] -- Memória[a] = Memória[a] + r1
+		- Indireto: Add r1, @a -- Memória[a] = Memória[a] + r1
+		- Imediato: Add 73, R1 -- R1 = R1 + 73
+	Input/Output
+		acessar os dispositivos de IO: Conectar os registradores desses dispositivos como parte da memória
+		Movimento do mouse é armazenado em um registrador, que será acessado pelo computador na memória
+	Controle de fluxo
+		Geralmente a CPU executa em sequência
+		As vezes é necessário jump
+			101 LOAD r1, 0
+			102 ADD 1, r1
+			103 JUMP 102
+		Dar nome aos lugares importantes
+			Load r1, 0
+			loop: Add 1, r1
+			jump loop
+			
+		As vezes é preciso dar jump condicional
+			JGT = Jump (if) Greater Than
+			JGT R1, 0, cont // Jump if r1 > 0
+			Subtract R1, 0, R1
+			cont: (...)
+				// Fazer algo com R1 positivo
+
+Linguagem de máquina do HACK
+	Hardware:
+		16-bit
+		Memória de dados (RAM) - 16-bit registers
+		Mmeória de instrução (ROM) - 16 bit registers
+		CPU - Realiza operações de 16 bits
+		Buses de instrução / dados / endereços
+		Registradores:
+			A register - Dados ou endereço
+			M register - Endereço de memória selecionado - Representa o (valor dentro do) registrador endereçado por A
+			D register - Armazena um valor de 16 bits (dados)
+	Software:
+		Linguagem de máquina
+		Instruções A 16-bit
+			@value
+				- Value é uma constante decimal não negativa
+				- Ou um símbolo referenciando à constnate
+				@21: Seta o registrador A para 21
+					- RAM[A] é o registrador selecionado
+					- M vira o registrador selecionado por A
+				EXEMPLO::::
+				// Setar RAM[100] como -1
+				@100 // A=100
+				M = -1 // RAM[100] = -1
+		Instruções C 16-bit
+			Cavalo de trabalho
+			Sintaxe: dest = comp ; jump (dest e jump são opcionais)
+			- comp = uma computação a ser realizada
+			- dest = onde armazenar
+			- jump = se vai pular pra outra instrução
+	Fluxo de controle	
+		- ROM é carregada com um programa
+		- Botão de RESET é pressionado
+		- Programa roda
