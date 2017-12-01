@@ -109,9 +109,125 @@ Linguagem de máquina do HACK
 			Cavalo de trabalho
 			Sintaxe: dest = comp ; jump (dest e jump são opcionais)
 			- comp = uma computação a ser realizada
+				- Pode ser qualquer computação entre
+				0, 1, -1, 
+				D, !D, -D, D+1, D-1, D+A, D-A, A-D, D&A, D|A
+				A, !A, -A, A+1, A-1, 	  
+				M, !M, -M, M+1, M-1, D+M, D-M, M-D, D&M, D|M
 			- dest = onde armazenar
+				- Pode ser:
+				null, M, D, MD, A, AM, AD, AMD
+				(M se refere a RAM[A])
 			- jump = se vai pular pra outra instrução
+				- 8 condições possíveis
+				- Comparam a computação a 0 sempre
+				- If (comp jump 0) is true, execute ROM[A]
+				- Jump é feito para o valor armazenado no registrador A
+				null: 
+				JGT: Greater Than - > 0
+				JEQ: Equal - == 0
+				JGE: Greater Than or Equal - >= 0
+				JLT: Lesser Than - < 0
+				JNE: Not Equal - != 0
+				JLE: Lesser Than or Equal - <= 0
+				JMP: JUMP (usagem: 0; JMP)
+		Exemplos da sintaxe:
+			- Setar o registrador D como -1
+			D=-1
+			- Setar a RAM[300] para o valor do registrador D - 1
+			@300 // A=300
+			M=D-1
+			- If (D-1==0) jump pra instrução em ROM[56]
+			@56
+			D-1; JEQ
 	Fluxo de controle	
 		- ROM é carregada com um programa
 		- Botão de RESET é pressionado
 		- Programa roda
+Especificação da Hack Language
+	Sintaxe em binário
+		- A instruction (op code 0)
+		@value = 0value (value é um número de 15 bits)
+		- C instruction (op code 1)
+		1 		 1 1 		 a c1 c2 c3 c4 c5 c6		 d1 d2 d3			j1 j2 j3
+		op code	 não usados  comp bits					 dest				jump
+		
+		comp:
+			a=0 -> usa o A
+			a=1 -> usa o M
+			
+			0   |     | c1 | c2 | c3 | c4 | c5 | c6 |
+			1   |     | 1  | 0  | 1  | 0  | 1  | 0  |
+			-1  |     | 1  | 1  | 1  | 1  | 1  | 1  |
+			D   |     | 1  | 1  | 1  | 0  | 1  | 0  |
+			A   |   M | 0  | 0  | 1  | 1  | 0  | 0  |
+			!D  |  !M | 1  | 1  | 0  | 0  | 0  | 0  |
+			!A  |  -M | 0  | 0  | 1  | 1  | 0  | 1  |
+			-D  |     | 1  | 1  | 0  | 0  | 0  | 1  |
+			-A  |     | 1  | 1  | 0  | 0  | 1  | 1  |
+			D+1 |     | 0  | 1  | 1  | 1  | 1  | 1  |
+			A+1 | M+1 | 1  | 1  | 0  | 1  | 1  | 1  |
+			D-1 |     | 0  | 0  | 1  | 1  | 1  | 0  |
+			A-1 | M-1 | 1  | 1  | 0  | 0  | 1  | 0  |
+			D+A | D+M | 0  | 0  | 0  | 0  | 1  | 0  |
+			D-A | D-M | 0  | 1  | 0  | 0  | 1  | 1  |
+			A-D | M-D | 0  | 0  | 0  | 1  | 1  | 1  |
+			D&A | D&M | 0  | 0  | 0  | 0  | 0  | 0  |
+			D|A | D|M | 0  | 1  | 0  | 1  | 0  | 1  |
+			----+----
+			a=0 | a=1 
+		dest:
+		| dest | d1 d2 d3 | effect: the value is stored in: 
+		| null | 0  0  0  | Valor não é armazenado
+		| M    | 0  0  1  | RAM[A]
+		| D    | 0  1  0  | D register
+		| MD   | 0  1  1  | RAM[A] e D Register
+		| A    | 1  0  0  | A register
+		| AM   | 1  0  1  | A register e RAM[A]
+		| AD   | 1  1  0  | A register e D registre
+		| AMD  | 1  1  1  | A register, RAM[A] e D register
+		
+		jmp:
+		| null | 0  0  0  |
+		| JGT  | 0  0  1  | 
+		| JEQ  | 0  1  0  | 
+		| JGE  | 0  1  1  | 
+		| JLT  | 1  0  0  | 
+		| JNE  | 1  0  1  | 
+		| JLE  | 1  1  0  | 
+		| JMP  | 1  1  1  | 
+		 
+Input/Output
+	Manipular a tela:
+		Screen Memory Map
+			- Área designada parte da RAM
+			- Monitor é continuamente atualizado com o contéudo do mapa de memória
+			- Saída é realizada manipulando os bits no mapa de memória
+			Hack Computer:
+				- Tabela de 256 linhas e 512 colunas
+				- Em cada interseção das linhas e colunas tem um pixel
+				- Pixel pode estar ligado ou desligado (preto e branco)
+				- Mapa de memória é uma sequência de valores de 16 bits (palavras)
+					- 8 mil palavras
+					- Memória só é acessada pelos 16 bits inteiros, não separa
+					- Primeiras 32 palavras correspondem à primeira linha
+					- Fórmula: row * 32 + col / 16
+					- Chip chamado Screen
+						- 8K
+						- Abstração
+						- Quando construir o computador a screen vai ser parte da memória
+					- word = Screen[32*row + col/16]
+					- OU word = RAM[16384 + 32*row + col/16]
+					- Pra mudar os pixels: setar o (col % 16)º bit da palavra pra 0 ou 1
+	Manipular o teclado
+		Keyboard Memory Map
+		- Um único registrador de 16 bits 
+		- Keycode - valor previmente combinado
+		- cada tecla possui um scan key 
+		- Para verificar qual tecla está sendo pressionada: ler o registrador Keyboard
+			- No hack computer fica na posição RAM[24576]
+		- read only
+		
+Hack Programming (pt 1)
+	- Assembler: converte o programa 
+	- CPU emulator
