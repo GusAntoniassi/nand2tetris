@@ -231,3 +231,81 @@ Input/Output
 Hack Programming (pt 1)
 	- Assembler: converte o programa 
 	- CPU emulator
+	- Low level programming
+		- Trabalhar com registradores e memória
+			- Registradores dentro da CPU (A e D)
+				- A = endereço ou dados
+				- D = dados
+			- Registradores na memória
+				- M = RAM[A]
+			- Operações comuns
+				- D = 0
+					@10
+					D = A
+				- D++
+					D=D+1
+				- D=RAM[17]
+					@17
+					D=M
+				- RAM[17] = D
+					@17
+					M=0
+				- RAM[17] = 10
+					@10
+					D=A
+					@17
+					M=D
+				- RAM[5] = RAM[3]
+					@3
+					D=M
+					@5
+					M=D
+			- Adicionar 2 valores
+				// Computa: RAM[2] = RAM[0] + RAM[1]
+				@0
+				D=M
+				@1
+				D=D+M
+				@2
+				M=D
+			- NOP slide: ataque que se aproveita das instruções nulas 
+			- Encerrar programa: loop infinito
+				5 	...
+				6	@6
+				7	0; JMP
+			- Registradores virtuais
+				16 registradores virtuais - R0 ao R15
+				Labels para os registradores
+				Traduzido pelo assembler
+				Sempre que quiser ler um dos 15 registradores do sistema, usar o registrador virtual
+					- Quando usar o registrador A pra armazenar dados, usar @
+					- Quando usar o registrador A pra armazenar enderçeos usar o R
+					em vez de
+						D=A
+						@15
+						
+						@5
+						M=D
+					usar
+						@15
+						D=A
+						
+						@R5
+						M=D
+			- Outros símbolos
+				SCREEN = 16384
+				KBD = 24576
+		- Branching
+			- Habilidade de dizer ao compilador para evaluar algum valor e baseado nele jumpar ou não
+			- If, else, while, for
+			- Em linguagem de máquina: GOTO
+			- Labels
+				Áreas do código que podem ser JUMPadas.
+				Declaradas como (NOME DA LABEL)
+				Acessadas com @NOME DA LABEL
+		- Variáveis
+			- Apenas um tipo de variável (valor de 16 bits)
+			- Único registrador
+		- Iteração
+		- Ponteiros
+		- Entrada e saída
