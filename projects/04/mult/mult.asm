@@ -13,17 +13,26 @@
     @num
     M=D
 
+    // Inicializar o R2 em 0
+    @R2
+    M=0
+
     // Armazenar o multiplicador em @multiplicador
     @R1
     D=M
     @multiplicador
     M=D
+    
+    // Finalizar o programa se o multiplicador for 0
+    @ENDLOOP
+    D;JEQ
 
     // Armazenar o @num em @resultado
     @num
     D=M
     @resultado
     M=D
+
 
     // Declarar o @i
     @i
@@ -32,12 +41,12 @@
     // Loop: Enquanto i < multiplicador
     (LOOP)
         // if i >= multiplicador, JMP to END
-        @i
-        D=M
         @multiplicador
+        D=M
+        @i
         D=D-M
         @END
-        D;JLE // Ir pro END se i - multiplicador <= 0
+        D;JLE // Ir pro END se multiplicador - i <= 0
 
         // Se chegou aqui, i < multiplicador
         @num
@@ -45,6 +54,10 @@
         @resultado
         M=D+M
         
+        // i++
+        @i
+        M=M+1
+
         // Voltar pro loop
         @LOOP
         0;JMP
@@ -56,6 +69,7 @@
         @R2
         M=D
 
-        @END
+    (ENDLOOP)
+        @ENDLOOP
         0;JMP
     
