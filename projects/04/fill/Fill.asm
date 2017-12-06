@@ -26,18 +26,17 @@
 //     }
 // }
 
-    @lastpress
-    M=0
-
     (WHILETRUE)
-        // Lê o valor do KBD e armazena na variável currpress
+        @whichfill
+        M=0
+
+        // Lê o valor do KBD
         @KBD
         D=M
-        @currpress
-        M=D
 
+        // Se @KBD > 0, setar a cor de fundo como preta
         @SETFILLBLACK
-        M;JGT
+        D;JGT
 
         // else
         @FILLSCREENLOOP
@@ -59,12 +58,16 @@
         (LOOP)
             @i
             D=M
-            // if (i < @KBD)
+            // if (i < @KBD - 1)
+            @SCREEN
+            D=A
             @KBD
-            D=D-A
-            // encerrar o loop (voltar pro while) se i - @KBD < 0
+            D=A-D
+            @i
+            D=D-M
+            // encerrar o loop (voltar pro while) se i - (@SCREEN - @KBD) < 0
             @WHILETRUE
-            D;JLT
+            D;JLE
 
             // if (whichfill == 0) { JMP @FILLSCREENWHITE }
                 @whichfill

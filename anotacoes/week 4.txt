@@ -306,6 +306,44 @@ Hack Programming (pt 1)
 		- Variáveis
 			- Apenas um tipo de variável (valor de 16 bits)
 			- Único registrador
+			- Uso: @variavel
+				- "Acha um registrador de memória disponível e use-o para representar a variável.
+				- Apartir de agora, qualquer uso de @variavel será traduzido em @n"
+			- Qualquer referência para um símbolo que não tem label declarada é tratada como referência p/ uma variável
+			- Variáveis são alocadas no endereço 16 pra frente
+			- Loader cuida de carregar o programa na posição certa
 		- Iteração
+			- Atingido combinando variáveis e branching
+			- Debugar: Trace table
+				- Anotar o nome das variáveis e seus valores, e calcular o valor delas em cada iteração
+			- Best practice
+				- Fazer o programa em pseudo code
+				- Escrever o programa em assembly
+				- Testar no papel usando a trace table
 		- Ponteiros
+			- Trabalhar com array
+			- Segmento na memória
+				- Apenas sabe o endereço inicial e o tamanho
+			- Variáveis que armazenam endereços de memória (como arr e i)
+			- Lógica do hack
+				- Quando for necessário acessar a memória usando um ponteiro, é necessário uma instrução como A=M
+				- Aritmética para saber qual o ponteiro a ser acessado
 		- Entrada e saída
+			- Ler e setar os valores da memória
+- Projeto 4
+	- Mult
+		- R2 = R0 * R1
+		- Loop
+	- Fill
+		- Quando tocar alguma tecla a tela fica preta
+		- Escutar o teclado
+		- Pra preencher/limpar a tela, escrever um código que preenche o memory map com pixels pretos ou brancos
+		- Loop com ponteiros
+		- Testar: Selecionar "sem animação" nas configurações do emulador
+	- Processo
+		- Prog.asm: padrão
+		- Comentar
+		- Variáveis simbólicas e labels (nomes sensíveis)
+		- Variáveis: lowercase
+		- Labels: UPPERCASE
+		
