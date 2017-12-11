@@ -28,4 +28,21 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+    // Se o endereço < 0100 0000 0000 0000, acessar a RAM16
+        // Se o 2º bit mais significativo ([14]) for 0
+        // [0..14]
+    // Senão, se o endereço < 0110 0000 0000 0000, acessar a Screen
+        // Se o 3º bit mais significativo ([13]) for 0
+        // [0..13]
+    
+    // Escolher o load necessário
+    DMux(in=load, sel=address[14], a=loadRam, b=loadScreenOrKbd);
+    DMux(in=loadScreenOrKbd, sel=address[13], a=loadScreen, b=loadKbd);
+
+    RAM16K(in=in, address=address[0..13], load=loadRam, out=ramOut);
+    Screen(in=in, address=address[0..12], load=loadScreen, out=screenOut);
+    Keyboard(out=keyboardOut);
+
+    Mux16(a=screenOut, b=keyboardOut, sel=address[13], out=screenOrKeyboardOut);
+    Mux16(a=ramOut, b=screenOrKeyboardOut, sel=address[14], out=out);
 }
