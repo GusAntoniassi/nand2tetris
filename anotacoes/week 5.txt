@@ -1,0 +1,168 @@
+Arquitetura Von Neumann:
+	- Dois componentes
+		- ALU
+		- Registradores
+	- Memória
+		- Dados
+		- Programa
+	- Fluxo
+		- 3 tipos de informação
+			- Dados
+			- Endereços
+			- Controle
+			Controlados por buses
+	- ALU
+		- Operações aritméticas em números
+		- Dados entram e saem
+		- Comandos (controle) também entram e saem 
+			- Dizer a outras partes o que fazer (JMP)
+	- Regsitradores
+		- Dados entram e saem 
+		- Endereços saem dos registradores
+	- Memória
+		- Endereços entram
+			- Pegar o endereço do dado que nós queremos usar
+			- Gravar e ler nele
+		- Dados entram e saem
+		- Endereços de instruções (controles) saem para o bus de controle
+		
+Ciclo fetch-execute
+	- Fetch a instrução e depois executar (e repetir)
+	- Fetch
+		- Próxima instrução situada no endereço especificado pelo PC (program counter)
+		- Pegar o código da instrução lendo o conteúdo da memória (de programa) naquele endereço
+		- Output do PC alimenta o endereço da memória do programa
+			- Que daí sai a instrução
+			
+			-> Program Counter -> [addr] Program Memory [out] -> Instrução
+	- Execução
+		- O código da instrução especifica o que fazer
+		- Subsets dos bits controlam diferentes aspectos da operação
+		- Executar a operação também involve acessar registradores e/ou memória de dados
+		- Instrução é alimentada no bus de controle da CPU   
+			- Bus que controla tudo
+			- Diz qual instrução executar pra ALU
+			- Diz de onde os dados vem, de um dos registradores (e qual) ou da memória de dados
+		- Fetch-Execute clash
+			- Multiplexador que alimenta no endereço da memória
+			- Setar o multiplexador pra plugar no address input da memória o PC
+			- No outro ciclo (execute), o multiplexador será setado para o endereço da memória de dados 
+			- Instrução será armazenada em um registrador que será preenchido no fetch
+	
+	bit do fetch/execute ---+        _______________________
+							|		|						|	{ Dados, quando executando
+			PC 			->  |\______|addr.  Memória      out|->
+			End. Dados	->  |/		|_______________________|	{ Instruções, quando pegando 
+						    MUX
+							
+	- Variação da arquitetura de Von Neumann
+		- Harvard Architecture
+		- Manter a memória do programa e dos dados em dois módulos separados
+		- Evita complicações
+
+Central Processing Unit
+	Centro de cálculos e posição de controle de decisões sobre quais instruções devem ser recuperadas e executadas
+	Hack CPU
+		- 16 bit
+		- Executa a instrução atual
+		- Decidir qual instrução executar depois
+		- Conectado à memória de instruções e memória de dados
+		
+						|\	  	
+		inM		- 16 -> |C|	- 16 -> 	outM
+		instr.	- 16 -> |P|	- 1 -> 		writeM
+		reset 	- 01 -> |U|	- 15 -> 	addressM
+						|/  - 15 -> 	pc
+						
+		inM: valor do registrador atual da memória de dados
+		instruction: valor do registrador de memória atualmente selecionado
+		reset: ?
+		
+		outM: o que nós queremos escrever
+		writeM: se nós queremos escrever ou não (load bit)
+		addressM: endereço de memória para escrever
+		pc: Endereço da próxima instrução
+		
+		Arquitetura proposta da CPU: https://imgur.com/wFUQoZ5
+			(C = Control bits - bits diferentes devem chegar aos lugares certos)
+			Registradores A, B e PC são registradores normais de 16 bits
+			
+		Op-codes
+			- A instruction (op code 0) / C instruction (op code 1)
+			1 		 1 1 		 a c1 c2 c3 c4 c5 c6		 	d1 d2 d3			j1 j2 j3
+			op code	 não usados  comp bits (ALU control bits) 	dest				jump
+		
+		A register
+			- Usa o primeiro bit (op code) no sel do multiplexer, se for 0 carrega o endereço de 15 bits
+			no registrador A, caso contrário carrega a saída da ALU
+			
+		Operação da ALU
+			Inputs da ALU vem de duas fontes diferentes
+				- D Register
+				- Mux16 (Ou o valor do D-Register ou o valor do A-Register/M-Register)
+			Outra entrada da ALU são os 6 comp bits
+			Saída da ALU é alimentada em 3 destinos diferentes
+				- bits sao alimentados ao D-register e ao A register
+				- é alimentado tbm à saída do chip
+				- Destino dessa saída é decidido pelos 3 bits da destinação
+		
+		Reset
+			"Botão" que vai fazer o computador começar a rodar o programa
+			Rodar o programa novamente também
+		
+		PC
+			Iniciar/resetar o programa: setar PC = 0
+			No jump (3 ultimos bits são 0): PC++
+			Unconditional goto (3 ultimos bits são 1): PC = A
+			Conditional goto: se a condição for TRUE, PC = A, senão PC++
+				- ALU vai computar -- Olhar nos control bits (NZ, GZ)
+				if (reset == 1) PC = 0
+				else
+					load = f(jump bits, ALU control outputs)
+					if (load==1) PC = A
+					else PC++
+					
+The Hack Computer
+	CPU
+		Se a instrução inclui D e A, ela manipula os valores dentro do D-register e A-register
+		Se a instrução é uma A-instruction (@x), o valor X é armazenado no A-register e o valor é emitido por addressM
+		Se o valor do lado direito da instrução menciona o M, o valor deve estar sendo trazido em inM 
+		(deve trazer o valor do endereço de memória atualmente selecionado)
+		Se o lado esquerdo da instrução conter M, a saída da ALU é emitida para outM, e o bit writeM é 1
+	Memória de dados
+		3 memórias
+		- RAM (16k)
+			- chip RAM16
+		- Screen (memory map 8K)
+			- builtin Screen (RAM8k que automaticamente atualiza a unidade do display)
+		- Keyboard (16 bits)
+			- Builtin Keyboard (Register que automaticamente pega o valor da tecla)
+	Memória de instruções
+		- builtin ROM32K
+		- Carregar o programa na ROM, presisonar 'reset', programa começa a rodar
+		- Implementação de hardware: Plug and play ROM chips
+			- Grava o programa no chip, pluga no CPU
+			- Jeito que alguns game consoles funcionavam
+		- Simulação de hardware: builtin ROM chip
+			- Permite carregar programas 
+			- address -> ROM32K - out ->
+		- Deve ser conectado o address ao Program Counter
+	
+	- Implementação
+		https://imgur.com/Z5UitLw
+	
+Project 5 overview
+	Implementation tips:
+		- ARegister, DRegister já estão prontos?
+		- Control bits serão roteados aos destinos certos
+		- Memória
+			- 24K registradores de 16 bits
+			- Endereços 0 a 16383: memória de dados
+			- Endereços 16384 a 24575: mapa de memória da tela
+			- Endereço 24576: mapa de memória do teclado
+			- Provavel implementação:
+				- Verificar o bit mais significativo, se for 0 joga pra RAM, se não
+					- Verificar algum outro bit de controle lá no meio, que se for 1 joga pro Keyboard, se for 0 joga pra Screen
+				- Se o endereço for < 16.383: RAM
+				- Se o endereço for > 16.383 e < 24575: Screen
+				- Else: Keyboard
