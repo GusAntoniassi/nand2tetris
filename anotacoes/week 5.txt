@@ -150,7 +150,7 @@ The Hack Computer
 	
 	- Implementação
 		https://imgur.com/Z5UitLw
-	
+	 
 Project 5 overview
 	Implementation tips:
 		- ARegister, DRegister já estão prontos?
