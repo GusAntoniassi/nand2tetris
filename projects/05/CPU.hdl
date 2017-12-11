@@ -40,4 +40,102 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+    //===============================
+    // A-Register
+    //===============================
+        // Fazer um Mux16 com a instrução e a saída da ALU
+        // O sel será o primeiro bit ([15]) da instrução
+        // O load do ARegister será o primeiro bit de destino (posição 5)
+
+        Mux16(a=instruction, b=aluOutput, sel=instruction[15], out=inputARegister);
+        ARegister(in=inputARegister, load=instruction[5], out=outARegister);
+
+
+    //===============================
+    // D-Register
+    //===============================
+        // D register será alimentado com a saída da ALU
+        // O load será determinado pelo 
+
+    DRegister(in=aluOutput, load=instruction[4], out=outDRegister);
+    
+    //===============================
+    // M-Register
+    //===============================
+        // Fazer um Mux16 com a saída do A-Register e o inM
+        // O sel será o bit "a" dos comp bits (o primeiro) - equivalente à posição 12
+
+    Mux16(a=outARegister, b=inM, sel=instruction[12], out=outMRegister);
+
+    //===============================
+    // ALU
+    //===============================
+        // Entrada da ALU é igual aos comp bits ([6..11])
+    ALU(
+        x=outDRegister,
+        y=outMRegister,
+        zx=instruction[11], 
+        nx=instruction[10], 
+        zy=instruction[9], 
+        ny=instruction[8], 
+        f=instruction[7], 
+        no=instruction[6],
+        out=aluOutput,
+        zr=zr,
+        ng=ng
+
+        // Já colocar a saída para alguns JUMPs
+        zr=jEQ
+        ng=jLT
+    )
+
+    //===============================
+    // JUMPS / PC
+    //===============================
+        // Olhar nos 3 últimos bits para saber qual jump será
+		| null | 0  0  0 |
+		| JGT  | 0  0  1 | 
+		| JEQ  | 0  1  0 | 
+		| JGE  | 0  1  1 | 
+		| JLT  | 1  0  0 | 
+		| JNE  | 1  0  1 | 
+		| JLE  | 1  1  0 | 
+		| JMP  | 1  1  1 | 
+
+    // Olhar nos control bits da ALU
+    // ZR e NG
+    // JGT = !ng && !zr     •
+    // JEQ = zr             •
+    // JGE = !ng            •
+    // JLT = ng             •
+    // JNE = !zr            •
+    // JLE = ng || zr       •
+    // JMP = 1              •
+
+    Not(in=zr, out=notZr, out=jNE);
+    Not(in=ng, out=notNg, out=jGE);
+    Or(a=ng, b=zr, out=jLE);
+    And(a=notNg, b=notZr, out=jGT);
+
+    // Decidir o que fazer aqui, preciso fazer algo tipo
+    // um Mux8Way pra selecionar o bit que eu quero
+
+    DMux8Way(
+        in=true, 
+        sel=instruction[0..2], 
+        a=false, 
+        b=, 
+        c=, 
+        d=, 
+        e=, 
+        f=, 
+        g=, 
+        h=);
+
+    Not(in=loadFinal, out=notLoadFinal);
+    PC(in=outARegister, load=loadFinal, inc=notLoadFinal, reset=reset, out= );
+
+    // A verificar: A ordem dos dest bits está correta?
+    // d1 = A? | d2=D(ok) | d3=writeM?
 }

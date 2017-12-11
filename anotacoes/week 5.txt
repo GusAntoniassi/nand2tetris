@@ -96,6 +96,9 @@ Central Processing Unit
 			- Usa o primeiro bit (op code) no sel do multiplexer, se for 0 carrega o endereço de 15 bits
 			no registrador A, caso contrário carrega a saída da ALU
 			
+		D register
+			- Usa o 
+			
 		Operação da ALU
 			Inputs da ALU vem de duas fontes diferentes
 				- D Register
@@ -153,7 +156,7 @@ The Hack Computer
 	  
 Project 5 overview
 	Implementation tips:
-		- ARegister, DRegister já estão prontos?
+		- ARegister, DRegister já estão prontos
 		- Control bits serão roteados aos destinos certos
 		- Memória
 			- 24K registradores de 16 bits
@@ -166,3 +169,9 @@ Project 5 overview
 				- Se o endereço for < 16.383: RAM
 				- Se o endereço for > 16.383 e < 24575: Screen
 				- Else: Keyboard
+	
+	Converter comandos Hack para comandos da ALU
+	https://imgur.com/3CBtgwf
+	
+	
+	
