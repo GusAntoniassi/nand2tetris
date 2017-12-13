@@ -173,5 +173,13 @@ Project 5 overview
 	Converter comandos Hack para comandos da ALU
 	https://imgur.com/3CBtgwf
 	
-	
+Perspectives
+	- Separação de memória de instruções e de programa = Harvard Architecture
+		- "Flavor" da von neumann
+	- Finite state machine
+		- "Círculos" que representam os estados da máquina
+		- Setas que apontam pra onde um estado pode ir ou vir
+	- Device controllers
+		hardware dedicado que sabe gerenciar o dispositivo (I/O)
+		tela por exemplo possui uma placa dedicada para computar as coisas internamente
 	
