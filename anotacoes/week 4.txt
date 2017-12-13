@@ -151,6 +151,8 @@ Especificação da Hack Language
 		- C instruction (op code 1)
 		1 		 1 1 		 a c1 c2 c3 c4 c5 c6		 d1 d2 d3			j1 j2 j3
 		op code	 não usados  comp bits					 dest				jump
+		0		 0 1 		 1 0  0  0  0  0  1  	  	 1  1  1
+		
 		
 		comp:
 			a=0 -> usa o A
