@@ -1,0 +1,155 @@
+Assembly languages and assemblers
+	Assembler é a primeira camada de software em cima do software
+	Cross-compilers: rodam em um computador e produzem código para outro computador
+	Lógica básica
+		- Ler o próximo comando asm
+			- Pular whitespace e comentários
+		- Quebra-o nas seções que é composto
+			Load R1, 18 -> Load; R1; 18
+		- Olha o código binário para cada seção
+			- Especificação da linguagem vai dizer qual é o comando e qual o opcode equivalente
+			Ex:
+			Comando		Opcode
+			Add 		10010
+			Load		11011
+		- Combina os códigos em um único comando de linguagem de máquina
+			Load; R1; 18
+			11001; 01; 000010010
+			1100101000010010
+			- Levar em consideração o padding e alguns bits que são constantes (0 ou 1)
+		- "Solta" esse comando
+		- Até EOF
+	- Símbolos
+		Usados para
+		- Labels (JMP loop)
+			- Vai armazenar na tabela e se lembrar do endereço para a próxima instrução JMP
+			- Label loop -> Armazena na lookup table
+			- JMP loop -> Procura pelo loop na lookup table
+			- Forward reference: JUMP é definido antes da label
+				- JGT cont
+				...
+				- Label cont
+				- Soluções possíveis
+					- Deixar o valor em branco até que a label apareça
+					- Na primeira passagem definir todos os endereços 
+		- Variáveis (Load R1, weight)
+			- Primeira vez que encontra a variável: Precisa alocar um enderçeo para armazenar a variável
+				- Encontrar a próxima célula não alocada
+		- Assembler vai substituir cada um dos símbolos para o seu endereço equivalente
+			- Lembrar onde ele está
+		- Lookup table
+			Símbolo | Endereço
+			weight	| 5782
+			loop	| 673
+
+The Hack Assembly Language
+	Hack language specification
+		- A instruction
+			- Sintaxe simbólica: @value (ex: @21)
+			- Sintaxe binário: 0<valor em binário> (ex: 000000000010101)
+			- Valor: constante não negativa ou símbolo referenciando tal constante
+			- op code 0
+		- C instruction
+			- Sintaxe simbólica: dest = comp ; jump
+			- Sintaxe binária: 111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
+			- Lookup tables: https://i.imgur.com/dRM4y0J.png
+		- Símbolos
+			símbolo 	| valor
+			R0			| 0
+			R1			| 1
+			R2			| 2
+			...			| ...
+			R15			| 15
+			SCREEN		| 16384
+			KBD			| 24576
+			---
+			SP			| 0
+			LCL			| 1
+			ARG			| 2 
+			THIS		| 3
+			THAT		| 4
+			- Declaração da label: (label)
+			- Declaração da variável: @variavel
+		- White space
+			- Linhas vazias / identação
+			- Comentários da linha
+			- Comentários inline
+			
+	Soluções:
+		- White space
+			- Sempre que ver um comentário ou linha vazia, simplesmente pular a linha
+
+The Assembly Process - Handling Instructions
+	A instruction
+		- Primeiro bit será sempre 0
+		- If <value> é uma constante decimal
+			- Gerar a constante em binário de 15 bits equivalente
+			- Zero pad
+		- If <value> é um símbolo: a ser definido depois
+	C instruction
+		- Olhar nas tabelas
+		- 3 primeiros bits sempre serão 111
+		
+	MD=A-1;JGE = 111 0110010 011 011
+	
+The Assembly Process - Handling Symbols
+	3 tipos de símbolos
+		- Variáveis: representam as posições de memória que o programador quer manter valores
+			- Quaisquer símbolos que aparecerem no programa e não são pré-definidos e não estão na lookup table
+			das labels é tratado como uma variável
+			- Cada variável recebe um endereço de memória único, começando no 16
+			- Variáveis só vão aparecer no código precedidos de @
+			- Se ela está aparecendo pela primeira vez, alocar seu espaço na memória
+			- Senão, fazer o lookup, e transformar a instrução em @<valor decimal>
+		- Labels: representam destinos de instruções goto
+			- Declarados pelo pseudo-comando (XXX)
+			- Não geram nenhum código, apenas adicionam o valor à lookup table
+			- Significa que a partir de agora, sempre que o código tiver o símbolo XXX 
+			ele se referirá *** IMPORTANTE *** à posição de memória que a próxima instrução do programa possui (tipo o "número da linha")
+		- Símbolos pré-definidos: representam locais especiais de memória
+			- Simplesmente substituir o símbolo pré definido com o valor
+			
+	- Symbol Table
+		- Estrutura de dados que permite armazenar pares de dados com símbolos e valores
+		- Construir vazia, depois popular com os valores pré-definidos
+		- First pass
+			- Percorrer todo o código-fonte, procurando por declarações de labels (que começam com parênteses)
+				- Manter nota dos números de linhas
+				- Armazenar o número da próxima instrução na lookup table
+		- Second pass
+			- Procurar as instruções com @<simbolo>
+				- Se não estiver na lookup table, é uma variável
+				
+	- Processo de assemlby
+		- Construir uma tabela de símbolos vazia
+		- Adicionar os símbolos pré-definidos à tabela
+		- First pass
+			- Escanear o programa inteiro
+			- Para cada instrução no formato (xxx)
+			- Adicionar o par {xxx, endereço} pra tabela de símbolos, onde endereço é o número da instrução depois de (xxx)
+		- Second pass
+			- Escanear o programa inteiro novamente, para cada instrução
+				- var n = 16
+				- Se a instrução é @<simbolo>, olhar símbolo na tabela
+				- Se {simbolo, valor} é encontrado, usar o valor para completar a tradução da instrução
+				- Se não for encontrado
+					- Adicionar (simbolo, n) à tabela
+					- Usar n para completar a tradução da instrução
+					- n++
+				- Se a instrução é uma C-instruction, completar a tradução
+				- Escrever a instrução traduzida no output file
+				
+			(LOCATION_1)
+			0  	@LOCATION_2
+			1 	D=M
+			(LOCATION_2)
+			2	@LOCATION_1
+			3 	M=D
+			(LOCATION_3)
+			4	@LOCATION_3
+			5	0;JMP
+				
+			{LOCATION_1, 0}
+			{LOCATION_2, 2}
+			{LOCATION_3, 4}
+			
