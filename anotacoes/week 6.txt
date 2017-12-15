@@ -152,4 +152,59 @@ The Assembly Process - Handling Symbols
 			{LOCATION_1, 0}
 			{LOCATION_2, 2}
 			{LOCATION_3, 4}
-			
+	
+Desenvolvendo um assembler Hack: Arquitetura de software proposta
+	- Ler e interpretar comandos
+		- Ler o input e quebrar em partes
+		- Não precisa entender o significado de nada, apenas se preocupar com o formato da linguagem
+		- Ler um arquivo com um determinado nome
+		- Ir para o próximo comando no arquivo
+			- Saber se tem mais comandos
+			- Pegar o próximo comando
+			- Ler uma linha de cada vez
+			- Pular espaço em branco e comentários
+		- Pegar os campos do comando atual
+			- Determinar que tipo de comando é (A-instruction, C-instruction ou label)
+			- Separar os comandos
+		- Traduzir os mnemônicos em binário
+			- dest = comp ; jump
+			- 111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
+		- Tabela de símbolos
+			- Não precisa se preocupar com o significado dos símbolos, apenas manter as associações
+			- Criar tabela
+			- Adicionar um par de símbolo/endereço na tabela
+			- Saber se a tabela contem um determinado símbolo
+			- Pegar o endereço associado com um determinado símbolo
+		- Usando a tabela
+			- Criar a tabela vazia
+			- Adicionar os símbolos pré definidos
+			- Enquanto lê o input, adiciona labels e variáveis novas à tabela
+			- Quando ver um comando @xxx onde xxx não é um número, consultar a tabela e substituir xxx com o endereço
+		- Adicionando símbolos
+			- Labels: Quando ler um comando (xxx), adicionar "xxx" e o endereço da próxima instrução
+				- Manter registro do endereço
+				- Pode precisar ser feito em um primeiro pass
+			- Variáveis: quando ler um comando @xxx, adicionar "xxx" e o próximo endereço livre
+				- Inicializar o endereço em 16, incrementar
+	- Converter mnemônicos em código
+	- Lidar com símbolos
+
+Revisão do projeto 6
+	Contrato
+		- Desenvolver um HackAssembler que traduz programas escritos em Hack assembly em binário executável pelo Hack
+		- O código fonte é fornecido em um arquivo texto chamado Xxx.asm
+		- O código gerado será chamado Xxx.hack
+		- Assumimos que Xxx.asm não possui erros
+	Uso (exemplo)
+		java HackAssembler Xxx.asm (criar/sobrescrever) um arquivo Xxx.hack
+	Arquitetura proposta
+		Parser: extrai cada instrução em seus campos necessários
+		Code: traduz cada campo em seu valor binário correspondente
+		SymbolTable: gerencia a tabela de símbolos
+		Main: inicializa os arquivos de e/s e gerencia o processo
+	Implementação proposta
+		Desenvolvimento em etapas
+		- Desenvolver um assembler básico que consegue traduzir programas sem símbolos
+		- Testar isoladamente
+		- Implementar o tratamento de símbolos
+		- Juntar o assembler básico em um que pode traduzir qualquer programa
