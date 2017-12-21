@@ -208,3 +208,9 @@ Revisão do projeto 6
 		- Testar isoladamente
 		- Implementar o tratamento de símbolos
 		- Juntar o assembler básico em um que pode traduzir qualquer programa
+		
+Perspective
+	Macro assembler
+	Macro command
+		- D=M[100] => @100, D=M
+		- JMP LOOP => @LOOP, JMP
